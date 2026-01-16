@@ -1,0 +1,61 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Build, install, log
+/build/
+/install/
+/log/
+*.log
+
+# ROS2 and colcon
+colcon.meta
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+Testing/
+
+# VSCode
+.vscode/
+
+# CLion
+.idea/
+*.iml
+cmake-build-*/
+
+# Compiled objects
+*.o
+*.so
+*.a
+*.dll
+*.exe
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+.build/
+
+# ROS specific
+*.pyc
+*.orig
+
+# Git metadata backup
+*.swp
+
+# Coverage
+coverage.xml
+htmlcov/
+
+# Editor backups
+*~
+*.bak
+
+# Ignore secrets (example)
+.env
