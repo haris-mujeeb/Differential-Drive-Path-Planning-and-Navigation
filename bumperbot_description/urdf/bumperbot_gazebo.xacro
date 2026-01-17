@@ -56,21 +56,25 @@
       </plugin>
       <plugin filename="libignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu">
       </plugin>
-      
+      <plugin filename="libignition-gazebo-sensors-system" name="ignition::gazebo::systems::Sensors">
+        <render_engine>ogre2</render_engine>
+      </plugin>
+    </xacro:if>
 
     <!-- ROS 2 Iron or above -->
-    </xacro:if>
     <xacro:unless value="$(arg is_ignition)">
       <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
         <parameters>$(find bumperbot_controller)/config/bumperbot_controllers.yaml</parameters>
       </plugin>
       <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu">
       </plugin>
+      <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+        <render_engine>ogre2</render_engine>
+      </plugin>
     </xacro:unless>
   </gazebo>
 
   <!-- IMU -->
-
   <gazebo reference = "imu_link">
     <material>Gazebo/White</material>
     <sensor name="imu" type="imu" update_rate="">
@@ -80,7 +84,6 @@
       <visualize>true</visualize>
       <topic>imu</topic>
 
-      
     <parent link="parent_link"/>
     <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
     <!-- Sensor |camera,ray,imu,magnetometer,gps,force_torque,contact,sonar,rfidtag,rfid| -->
@@ -126,6 +129,36 @@
           </z>
         </linear_acceleration>
       </imu>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="laser_link">
+    <sensor name="lidar" type="gpu_lidar" update_rate="5">
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+      <topic>scan</topic>
+      <update_rate>5</update_rate>
+      <gz_frame_id>laser_link</gz_frame_id>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1.00000</resolution>
+            <min_angle>0.000000</min_angle>
+            <max_angle>6.280000</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.120000</min>
+          <max>12.0</max>
+          <resolution>0.02</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </lidar>
     </sensor>
   </gazebo>
 
