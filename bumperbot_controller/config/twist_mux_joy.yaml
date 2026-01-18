@@ -3,9 +3,9 @@ joystick_relay:
     priority: True
     turbo:
       linear_forward_min  : 0.2
-      linear_forward_max  : 0.7
+      linear_forward_max  : 2.0
       linear_backward_min : 0.2
-      linear_backward_max : 0.7
+      linear_backward_max : 2.0
       angular_min : 0.7
-      angular_max : 5.0
+      angular_max : 8.0
       steps       : 3
