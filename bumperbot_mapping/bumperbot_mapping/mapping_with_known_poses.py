@@ -7,6 +7,11 @@ from tf2_ros import Buffer, TransformListener, LookupException
 from tf_transformations import euler_from_quaternion
 
 
+PRIOR_PROB = 0.5
+OCC_PROB = 0.9
+FREE_PROB = 0.35
+
+
 class Pose:
   def __init__(self, px = 0, py = 0):
     self.x = px
@@ -72,10 +77,21 @@ def inverseSensorModel(p_robot: Pose, p_beam: Pose):
   line = bresenham(p_robot, p_beam)
 
   for pose in line[:-1]:
-    occ_values.append((pose, 0))  # FREE
+    occ_values.append((pose, FREE_PROB))  # FREE
 
-  occ_values.append((line[-1], 100))  # OCCUPIED
+  occ_values.append((line[-1], OCC_PROB))  # OCCUPIED
   return occ_values
+
+
+def prob2logods(p):
+  return math.log(p / (1 - p))
+
+
+def logods2prob(l):
+  try:
+    return 1 - (1 / (1 + math.exp(l)))
+  except OverflowError:
+    return 1.0 if l > 0 else 0.0
 
 
 class MappingWithKnownPoses(Node):
@@ -98,13 +114,14 @@ class MappingWithKnownPoses(Node):
     self.map_.info.origin.position.y = float(-round(height / 2.0))
     self.map_.header.frame_id = "odom"
     self.map_.data = [-1] *(self.map_.info.width * self.map_.info.height)
+    self.probablity_map_ = [prob2logods(PRIOR_PROB)] * (self.map_.info.width * self.map_.info.height)
 
+    self.tf_buffer_ = Buffer()
+    self.tf_listener = TransformListener(self.tf_buffer_, self)
     self.map_pub_ = self.create_publisher(OccupancyGrid, "map", 1)
     self.map_sub_ = self.create_subscription(LaserScan, "scan", self.scanCallback, 10)
     self.timer = self.create_timer(1.0, self.timerCallback)
 
-    self.tf_buffer_ = Buffer()
-    self.tf_listener = TransformListener(self.tf_buffer_, self)
 
   def scanCallback(self, scan : LaserScan):
     try:
@@ -142,11 +159,12 @@ class MappingWithKnownPoses(Node):
       for pose, value in posses:
         if poseOnMap(pose, self.map_.info):
           cell = poseToCell(pose, self.map_.info)
-          self.map_.data[cell] = value
+          self.probablity_map_[cell] += prob2logods(value) - prob2logods(PRIOR_PROB)
 
 
   def timerCallback(self):
     self.map_.header.stamp = self.get_clock().now().to_msg()
+    self.map_.data = [int(logods2prob(value) * 100)  for value in self.probablity_map_]
     self.map_pub_.publish(self.map_)
 
 
