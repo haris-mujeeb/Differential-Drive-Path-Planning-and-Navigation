@@ -7,6 +7,7 @@ This package contains Python examples for the Bumperbot ROS 2 project. These exa
 *   **Creating a Service Server**: `simple_service_server.py` shows how to create a ROS 2 service using a custom service type (`bumperbot_msgs/srv/AddTwoInts`).
 *   **Broadcasting TF Transforms**: `simple_tf_kinematics.py` demonstrates broadcasting both static and dynamic transforms to `/tf` and `/tf_static`, simulating robot movement.
 *   **ROS 2 Quality of Service (QoS)**: `simple_qos_publisher.py` and `simple_qos_subscriber.py` demonstrate how to configure different QoS policies (Reliability and Durability) for ROS 2 publishers and subscribers.
+*   **ROS 2 Lifecycle Management**: `simple_lifecycle_node.py` shows how to create and manage a lifecycle node, which allows for explicit control over a node's state transitions (e.g., configuring, activating, deactivating).
 
 ## Examples
 
@@ -47,6 +48,18 @@ This package contains Python examples for the Bumperbot ROS 2 project. These exa
         `ros2 run bumperbot_py_examples simple_qos_subscriber --ros-args -p durability:=transient_local`
     *   With both custom reliability and durability:
         `ros2 run bumperbot_py_examples simple_qos_subscriber --ros-args -p reliability:=reliable -p durability:=transient_local`
+
+### 5. `simple_lifecycle_node.py`
+
+*   **Description**: A node that demonstrates the ROS 2 lifecycle management. It subscribes to the `/chatter` topic and will only process messages when it is in the `active` state.
+*   **To Run**: `ros2 run bumperbot_py_examples simple_lifecycle_node`
+*   **To interact with the lifecycle node**:
+    *   To see the current state: `ros2 lifecycle get /simple_lifecycle_node`
+    *   To configure the node: `ros2 lifecycle set /simple_lifecycle_node configure`
+    *   To activate the node: `ros2 lifecycle set /simple_lifecycle_node activate`
+    *   To deactivate the node: `ros2 lifecycle set /simple_lifecycle_node deactivate`
+    *   To cleanup the node: `ros2 lifecycle set /simple_lifecycle_node cleanup`
+    *   To shutdown the node: `ros2 lifecycle set /simple_lifecycle_node shutdown`
 
 ### Useful ROS 2 Commands for QoS Examples
 

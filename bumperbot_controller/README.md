@@ -113,12 +113,21 @@ The `simple_controller` and `noisy_controller` nodes accept the following parame
 
 These parameters can be set in the launch file or overridden via the command line.
 
-### 10. Joystick Teleoperation
+### 10. Joystick Teleoperation with `twist_mux`
 
-This package includes a launch file for controlling the robot with a joystick.
+This package provides a robust teleoperation setup using `twist_mux` to safely manage multiple sources of velocity commands.
 
-*   **`joystick_teleop.launch.py`**: This launch file starts the `joy_node` (for reading joystick input) and the `joy_teleop` node (for converting joystick input into `cmd_vel` messages).
-*   **Configuration**: The joystick mapping is defined in `config/joy_config.yaml`, and the teleoperation parameters are in `config/joy_teleop.yaml`.
+*   **`joystick_teleop.launch.py`**: This is the main launch file for teleoperation. It starts the following nodes:
+    *   `joy_node`: Reads raw data from the joystick.
+    *   `joy_normalizer.py`: A custom node that normalizes the joystick output, making it easier to handle different joystick types. It also provides a turbo mode.
+    *   `twist_mux`: The core component that arbitrates between different topics publishing `Twist` messages. It selects one based on priority and locks.
+    *   `twist_relay.py`: A custom node that relays the selected `Twist` message from `twist_mux` to the robot's controller, but only if the `safety_stop` topic is not `True`.
+
+*   **`twist_mux` Configuration**:
+    *   `config/twist_mux_topics.yaml`: Defines the input topics for `twist_mux`. For example, it can listen to `/joy_vel` (from the joystick) and `/nav_vel` (from a navigation stack).
+    *   `config/twist_mux_locks.yaml`: Configures the locking mechanism. For example, if a high-priority topic like `/e_stop` receives a message, all other topics can be locked out.
+    *   `config/twist_mux_joy.yaml`: Maps joystick buttons to specific `twist_mux` functionalities, like selecting the input topic.
+
 *   **To Launch**:
     ```bash
     ros2 launch bumperbot_controller joystick_teleop.launch.py

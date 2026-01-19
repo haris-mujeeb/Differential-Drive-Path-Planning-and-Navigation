@@ -53,6 +53,23 @@ This node implements a probabilistic motion model for odometry. It's a sampling-
     ros2 run bumperbot_localization odometry_motion_model.py
     ```
 
+### `global_localization.launch.py`
+
+This launch file is used for global localization, which means localizing the robot in a pre-existing map. It starts the following nodes:
+
+1.  **`nav2_map_server`**: Loads a map from the `bumperbot_mapping` package. The default map is `small_house`.
+2.  **`nav2_lifecycle_manager`**: Manages the lifecycle of the `map_server`.
+
+**To Run**:
+```bash
+ros2 launch bumperbot_localization global_localization.launch.py
+```
+
+You can also specify a different map to use:
+```bash
+ros2 launch bumperbot_localization global_localization.launch.py map_name:=<your_map_name>
+```
+
 ## How to Build
 
 ```bash

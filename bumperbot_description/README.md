@@ -17,8 +17,8 @@ This package contains all the necessary files to describe the Bumperbot robot wi
 
 *   `urdf/`: Contains the `bumperbot.urdf.xacro` (robot definition) and `bumperbot.gazebo.xacro` (Gazebo extensions).
 *   `meshes/`: Stores 3D model files (e.g., `.STL`) for robot parts.
-*   `launch/`: Includes launch files like `gazebo.launch.py` for starting the simulation.
-*   `rviz/`: Contains Rviz configuration files (e.g., `bumperbot.rviz`).
+*   `launch/`: Includes launch files like `gazebo.launch.py` for starting the simulation. By default, it launches the `small_warehouse` world.
+*   `rviz/`: Contains Rviz configuration files (e.g., `bumperbot.rviz`). The default view is a top-down orthographic projection, and it's configured to display the robot model, TF frames, and laser scan data.
 
 ## Essential ROS 2 Packages Used
 
