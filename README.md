@@ -2,9 +2,13 @@
 
 This repository is my personal workspace for learning Odometry, Control, Localization, and Mapping for a differential drive robot using ROS 2. It is based on the tutorial "Self-Driving and ROS 2 - Learn by Doing! Odometry & Control" by AntoBrandi.
 
-<p align="center">
-  <img width="400" alt="Bumperbot in Gazebo" src="bumperbot_description/photos/DeskPortraitA_01.jpg">
-</p>
+<img width="242" height="304" alt="image" src="https://github.com/user-attachments/assets/f0cac622-c647-46f7-9ec5-e16c21bcf405" />
+
+
+
+https://github.com/user-attachments/assets/acb764d9-9d00-4e52-9a3b-6921c6f79d77
+
+
 
 ## Packages
 
