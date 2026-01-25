@@ -45,6 +45,6 @@ amcl:
     resample_interval: 1
     max_particles: 2000
     min_particles: 500
-    recovery_alpha_fast: 0.0
-    recovery_alpha_slow: 0.0
+    recovery_alpha_fast: 0.1
+    recovery_alpha_slow: 0.1
 
