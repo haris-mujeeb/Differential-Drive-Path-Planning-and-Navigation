@@ -1,52 +1,46 @@
-# Bumperbot Utils
+# Bumperbot Utils: My Collection of Helper Nodes
 
-This package contains utility nodes for the Bumperbot project.
+This package is a "toolbox" for our Bumperbot project. It contains various helper nodes that provide useful functionalities, from visualization to safety features.
 
-## Nodes
+## My Personal Notes on Utility Nodes
+
+As a project grows, you'll often find you need small, single-purpose nodes that don't quite fit into other packages. A `_utils` package is the perfect home for them. It helps keep the other packages focused on their primary role.
+
+## What's in the Toolbox?
 
 ### `trajectory_drawer.py`
 
-*   **Purpose**: This node visualizes the robot's path by converting odometry data into a `nav_msgs/msg/Path` message, which can be displayed in Rviz.
-*   **Subscriptions**:
-    *   `/bumperbot_controller/odom` (`nav_msgs/msg/Odometry`): The robot's odometry, used to get the poses for the path.
-*   **Publications**:
-    *   `/bumperbot_controller/trajectory` (`nav_msgs/msg/Path`): The accumulated path of the robot.
+*   **My Take**: This node is simple but very satisfying. It draws a "snail trail" behind the robot, showing the path it has taken.
+*   **How it Works**: It listens to the robot's odometry topic (`/bumperbot_controller/odom`), collects the poses, and publishes them as a `Path` message. You can then visualize this path in RViz to see where your robot has been.
 
-### `safetly_stop.py`
+### `safety_stop.py`
 
-*   **Purpose**: This node acts as a safety monitor. It subscribes to a laser scan topic and, based on the distance to obstacles, it will publish a boolean to a "safety_stop" topic and also send goals to "joy_turbo" action servers to increase or decrease speed. It also visualizes the warning and danger zones as markers in Rviz.
-*   **Subscriptions**:
-    *   `/scan` (`sensor_msgs/msg/LaserScan`): The laser scan data.
-*   **Publications**:
-    *   `/safety_stop` (`std_msgs/msg/Bool`): Publishes `True` when an obstacle is within the `danger_distance`.
-    *   `/zones` (`visualization_msgs/msg/MarkerArray`): Publishes markers for visualizing the warning and danger zones in Rviz.
-*   **Actions**:
-    *   `/joy_turbo_decrease` (`twist_mux_msgs/action/JoyTurbo`): Sends a goal to decrease the robot's speed when an obstacle is in the warning zone.
-    *   `/joy_turbo_increase` (`twist_mux_msgs/action/JoyTurbo`): Sends a goal to increase the robot's speed when the robot is in the free zone.
-*   **Parameters**:
-    *   `warning_distance`: The distance in meters to trigger a warning and decrease speed. Default is `0.6`.
-    *   `danger_distance`: The distance in meters to trigger a safety stop. Default is `0.2`.
-    *   `scan_topic`: The name of the laser scan topic to subscribe to. Default is `scan`.
-    *   `safety_stop_topic`: The name of the topic to publish the safety stop boolean. Default is `safety_stop`.
+*   **My Take**: This is a crucial safety feature. It acts as a lookout, stopping the robot before it crashes into something. I also fixed a typo in the original filename (`safetly_stop.py` -> `safety_stop.py`).
+*   **How it Works**:
+    1.  It subscribes to the `/scan` topic to get Lidar data.
+    2.  It defines a "danger zone" and a "warning zone" around the robot.
+    3.  If an obstacle enters the **danger zone**, it publishes `True` to the `/safety_stop` topic, which tells the `twist_relay` in our controller package to stop the robot.
+    4.  If an obstacle enters the **warning zone**, it sends a goal to an action server to slow the robot down (reduce the "turbo" mode).
+    5.  It also publishes visual markers for these zones, so you can see them in RViz.
 
-## How to Use
+## How to Use These Nodes
 
-1.  **Run the Nodes**:
+1.  **Build the package**:
     ```bash
-    # To run the trajectory drawer
-    ros2 run bumperbot_utils trajectory_drawer.py
-
-    # To run the safety stop node
-    ros2 run bumperbot_utils safetly_stop.py
+    colcon build --packages-select bumperbot_utils
     ```
 
-2.  **Visualize in Rviz**:
-    *   Open Rviz: `rviz2`
-    *   Click "Add" -> "By topic" -> and select the `/bumperbot_controller/trajectory` topic (or add a `Path` display and set the topic manually).
-    *   As the robot moves, you will see a line representing its trajectory.
-    *   Click "Add" -> "By topic" -> and select the `/zones` topic (or add a `MarkerArray` display and set the topic manually).
+2.  **Run the nodes**:
+    You can run these nodes while your main robot simulation is active.
+    ```bash
+    # To see the robot's trajectory
+    ros2 run bumperbot_utils trajectory_drawer.py
 
-## How to Build
-```bash
-colcon build --packages-select bumperbot_utils
-```
+    # To enable the safety stop feature
+    ros2 run bumperbot_utils safety_stop.py
+    ```
+
+3.  **Visualize in RViz**:
+    *   Open RViz (`rviz2`).
+    *   Add a `Path` display and set the topic to `/bumperbot_controller/trajectory` to see the snail trail.
+    *   Add a `MarkerArray` display and set the topic to `/zones` to see the safety zones around the robot.
