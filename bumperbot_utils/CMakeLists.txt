@@ -19,7 +19,7 @@ ament_python_install_package(${PROJECT_NAME})
 
 install(PROGRAMS
   ${PROJECT_NAME}/trajectory_drawer.py
-  ${PROJECT_NAME}/safetly_stop.py
+  ${PROJECT_NAME}/safety_stop.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -7,7 +7,6 @@ Panels:
         - /Status1
         - /TF1/Frames1
         - /Map1/Topic1
-        - /ParticleCloud1
         - /ParticleCloud1/Topic1
       Splitter Ratio: 0.6294117569923401
     Tree Height: 739
@@ -255,6 +254,19 @@ Visualization Manager:
         Reliability Policy: Best Effort
         Value: /particle_cloud
       Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: MarkerArray
+      Namespaces:
+        slam_toolbox: true
+        slam_toolbox_edges: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /slam_toolbox/graph_visualization
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -310,11 +322,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 44.566871643066406
+      Scale: 33.52577590942383
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz_default_plugins)
-      X: 0.07200877368450165
-      Y: -2.108602523803711
+      X: 1.831201434135437
+      Y: -0.8150787353515625
     Saved: ~
 Window Geometry:
   Displays:

@@ -37,7 +37,7 @@ def generate_launch_description():
     ),
   )
 
-  slam = IncludeLaunchDescription(
+  localization = IncludeLaunchDescription(
     os.path.join(
       get_package_share_directory("bumperbot_localization"),
       "launch",
@@ -45,10 +45,19 @@ def generate_launch_description():
     ),
   )
 
+  slam = IncludeLaunchDescription(
+    os.path.join(
+      get_package_share_directory("bumperbot_mapping"),
+      "launch",
+      "slam.launch.py"
+    ),
+  )
+
   return LaunchDescription([
     gazebo,
     controller,
     joystick,
+    # localization,
     slam,
     rviz,
   ])
