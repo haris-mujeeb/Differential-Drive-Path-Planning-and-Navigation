@@ -34,7 +34,8 @@ def generate_launch_description():
     executable='rviz2',
     name='rviz2',
     output='screen',
-    arguments=['-d', os.path.join(get_package_share_directory('bumperbot_description'), 'rviz/bumperbot.rviz')]
+    # arguments=['-d', os.path.join(get_package_share_directory('bumperbot_description'), 'rviz/bumperbot.rviz')]
+    arguments=['-d', os.path.join(get_package_share_directory('bumperbot_planning'), 'rviz/mapping.rviz')]
   )
 
   return LaunchDescription(
