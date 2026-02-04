@@ -1,12 +1,13 @@
 class GraphNode:
-  def __init__(self, x, y, cost=0, prev=None):
+  def __init__(self, x, y, cost=0, heuristic=0, prev=None):
     self.x = x
     self.y = y
     self.cost = cost
+    self.heuristic = heuristic
     self.prev = prev
 
   def __lt__(self, other):
-    return self.cost < other.cost
+    return (self.cost + self.heuristic) < (other.cost + other.heuristic)
   
   def __eq__(self, other):
     return self.x == other.x and self.y == other.y

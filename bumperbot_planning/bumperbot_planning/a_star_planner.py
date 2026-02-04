@@ -10,9 +10,9 @@ from geometry_msgs.msg import PoseStamped, Pose
 from tf2_ros import Buffer, TransformListener, LookupException
 from graph_node import GraphNode
 
-class DijkstraPlanner(Node):
+class AStarPlanner(Node):
   def __init__(self):
-    super().__init__("dijkstra_node")
+    super().__init__("a_star_node")
     self.tf_buffer_ = Buffer()
     self.tf_listener_ = TransformListener(self.tf_buffer_, self)
 
@@ -23,8 +23,8 @@ class DijkstraPlanner(Node):
     self.map_sub_ = self.create_subscription(OccupancyGrid, "/map", self.map_callback, map_qos_)
     self.goal_pose_sub_ = self.create_subscription(PoseStamped, "/goal_pose", self.goal_pose_callback, 10)
 
-    self.path_pub_ = self.create_publisher(Path, "/dijkstra/path", 10)
-    self.visited_map_pub_ = self.create_publisher(OccupancyGrid, "/dijkstra/visited_map", 10)
+    self.path_pub_ = self.create_publisher(Path, "/a_star/path", 10)
+    self.visited_map_pub_ = self.create_publisher(OccupancyGrid, "/a_star/visited_map", 10)
 
     self.map_ : Optional[OccupancyGrid] = None
     self.visited_map_ = OccupancyGrid()
@@ -38,6 +38,7 @@ class DijkstraPlanner(Node):
     self.visited_map_.header.frame_id = self.map_.header.frame_id
     self.visited_map_.info = self.map_.info
     self.visited_map_.data = [-1] * (self.map_.info.height * self.map_.info.width)
+
 
   def goal_pose_callback(self, pose_msg : PoseStamped):
     if self.map_ is None:
@@ -79,6 +80,8 @@ class DijkstraPlanner(Node):
       return None
     
     start_node = self.world_to_grid(start_pose)
+    start_node.cost = 0.0
+
     goal_node = self.world_to_grid(goal_pose)
 
     if not self.in_bound(start_node):
@@ -97,31 +100,37 @@ class DijkstraPlanner(Node):
     q : List[GraphNode]= []
     heapq.heappush(q, (start_node.cost, start_node))
     visited = { start_node }
+    best_cost = { start_node: 0.0}
     dirs = [(1,0), (-1,0), (0,1), (0,-1)]
     current_node = None
 
     while q and rclpy.ok():
       _ , current_node = heapq.heappop(q)
+      visited.add(current_node)
 
       if current_node == goal_node:
         goal_node = current_node
         break
 
       for dx, dy in dirs:
-        # calculate the new cost
         nx, ny = current_node.x + dx, current_node.y + dy
         neighbour = GraphNode(nx, ny, prev=current_node)
 
         if not self.in_bound(neighbour): continue
         if neighbour in visited: continue
         if not self.is_free(neighbour): continue
+        
         neighbour.cost = current_node.cost + 1 + self.map_.data[self.idx(neighbour)]
+        if neighbour in best_cost and neighbour.cost >= best_cost[neighbour]:
+                    # “If we have already reached this neighbour before with a cheaper or equal cost, 
+          continue  # then this new path is worse — ignore it.”
+        best_cost[neighbour] = neighbour.cost
+        neighbour.heuristic = self._get_manhattan_distance(neighbour, goal_node)
         neighbour.prev = current_node
+        f_cost = neighbour.cost + neighbour.heuristic
+        heapq.heappush(q, (f_cost, neighbour))
 
-        heapq.heappush(q, (neighbour.cost, neighbour))
-        visited.add(neighbour)
-
-      self.visited_map_.data[self.idx(current_node)] = 10
+      self.visited_map_.data[self.idx(current_node)] = -106
       self.visited_map_pub_.publish(self.visited_map_)
 
     if goal_node not in visited:
@@ -147,7 +156,7 @@ class DijkstraPlanner(Node):
     pose.pose.position.x = (node.x * self.map_.info.resolution) + self.map_.info.origin.position.x
     pose.pose.position.y = (node.y * self.map_.info.resolution) + self.map_.info.origin.position.y
     return pose
-
+    
   def world_to_grid(self, pose : Pose) -> GraphNode:
     grid_x = int((pose.position.x - self.map_.info.origin.position.x) / self.map_.info.resolution)
     grid_y = int((pose.position.y - self.map_.info.origin.position.y) / self.map_.info.resolution)
@@ -161,11 +170,15 @@ class DijkstraPlanner(Node):
 
   def is_free(self, node : GraphNode):
     return 0 <= self.map_.data[self.idx(node)] < 99
+  
+  @staticmethod
+  def _get_manhattan_distance(source : GraphNode, target : GraphNode):
+     return abs(target.x - source.x) + abs(target.y - source.y)
 
 
 def main(args=None):
   rclpy.init(args=args)
-  node = DijkstraPlanner()
+  node = AStarPlanner()
   rclpy.spin(node)
   rclpy.shutdown()
 
