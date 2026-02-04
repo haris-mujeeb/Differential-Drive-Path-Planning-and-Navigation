@@ -1,11 +1,10 @@
 # Bumperbot Workspace: My ROS 2 Learning Journey
 
-Welcome to my personal workspace for learning ROS 2! This repository is where I'm documenting my progress through the "Self-Driving and ROS 2 - Learn by Doing! Odometry & Control" tutorial by AntoBrandi. My goal is to create a comprehensive guide for beginners, filled with personal notes, explanations, and troubleshooting tips that I discover along the way.
+Welcome to my personal workspace for learning ROS 2! This repository is where I'm documenting my progress through the "Self-Driving and ROS 2 - Learn by Doing! Plan & Navigation" tutorial by AntoBrandi. My goal is to create a comprehensive guide for beginners, filled with personal notes, explanations, and troubleshooting tips that I discover along the way.
 
 <img width="242" height="304" alt="image" src="https://github.com/user-attachments/assets/f0cac622-c647-46f7-9ec5-e16c21bcf405" />
 
 ## A Beginner's Guide to this Workspace
-
 If you're new to ROS 2 and robotics, this workspace is designed to help you understand the foundational concepts of building and controlling a robot. We'll cover:
 
 *   **Odometry**: Figuring out how far the robot has traveled.

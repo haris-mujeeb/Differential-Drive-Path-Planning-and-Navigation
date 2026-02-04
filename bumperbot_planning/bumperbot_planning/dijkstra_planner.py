@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-from typing import Optional, Dict, Deque
-from collections import deque
+from typing import Optional, List
+import heapq
 import rclpy
+from rclpy.time import Time
 from rclpy.node import Node  
 from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
 from nav_msgs.msg import OccupancyGrid, Path
@@ -9,9 +10,9 @@ from geometry_msgs.msg import PoseStamped, Pose
 from tf2_ros import Buffer, TransformListener, LookupException
 from graph_node import GraphNode
 
-class BFSPlanner(Node):
+class DijkstraPlanner(Node):
   def __init__(self):
-    super().__init__("BFSPlanner")
+    super().__init__("dijkstra_node")
     self.tf_buffer_ = Buffer()
     self.tf_listener_ = TransformListener(self.tf_buffer_, self)
 
@@ -22,8 +23,8 @@ class BFSPlanner(Node):
     self.map_sub_ = self.create_subscription(OccupancyGrid, "/map", self.map_callback, map_qos_)
     self.goal_pose_sub_ = self.create_subscription(PoseStamped, "/goal_pose", self.goal_pose_callback, 10)
 
-    self.path_pub_ = self.create_publisher(Path, "/bfs/path", 10)
-    self.visited_map_pub_ = self.create_publisher(OccupancyGrid, "/bfs/visited_map", 10)
+    self.path_pub_ = self.create_publisher(Path, "/dijkstra/path", 10)
+    self.visited_map_pub_ = self.create_publisher(OccupancyGrid, "/dijkstra/visited_map", 10)
 
     self.map_ : Optional[OccupancyGrid] = None
     self.visited_map_ = OccupancyGrid()
@@ -45,9 +46,7 @@ class BFSPlanner(Node):
       return
     
     try:
-      map_to_base_tf = self.tf_buffer_.lookup_transform(
-          self.map_.header.frame_id, "base_footprint", rclpy.time.Time()
-      )
+      map_to_base_tf = self.tf_buffer_.lookup_transform(self.map_.header.frame_id, "base_footprint", rclpy.time.Time())
     except LookupException as e:
       self.get_logger().error(f"Could not transform from map to base_footprint: {e}")
       return
@@ -72,7 +71,7 @@ class BFSPlanner(Node):
         self.get_logger().warning(
             "Path found but with no poses"
         )
-  
+ 
   def plan(self, start_pose : Pose, goal_pose : Pose) -> Optional[Path]:
     if self.map_ is None:
       self.get_logger().warning(
@@ -89,7 +88,6 @@ class BFSPlanner(Node):
     if not self.in_bound(goal_node):
         self.get_logger().warning("Goal node is out of bounds")
         return None
-
     if not self.is_free(start_node):
         self.get_logger().warning("Start node is in an obstacle or unknown location")
         return None
@@ -97,24 +95,35 @@ class BFSPlanner(Node):
         self.get_logger().warning("Goal node is in an obstacle or unknown location")
         return None
 
-    q : Deque[GraphNode] = deque()
-    q.append(start_node)
+    q : List[GraphNode]= []
+    heapq.heappush(q, (start_node.cost, start_node))
     visited = { start_node }
     dirs = [(1,0), (-1,0), (0,1), (0,-1)]
+    current_node = None
 
-    while q:
-      node = q.popleft()
-      if node == goal_node:
-        goal_node = node
+    while q and rclpy.ok():
+      _ , current_node = heapq.heappop(q)
+
+      if current_node == goal_node:
+        goal_node = current_node
         break
+
       for dx, dy in dirs:
-        nx, ny = node.x + dx, node.y + dy
-        neighbour = GraphNode(nx, ny, prev=node)
+        # calculate the new cost
+        nx, ny = current_node.x + dx, current_node.y + dy
+        neighbour = GraphNode(nx, ny, prev=current_node)
+
         if not self.in_bound(neighbour): continue
         if neighbour in visited: continue
         if not self.is_free(neighbour): continue
+        neighbour.cost = current_node.cost + 1 + self.map_.data[self.idx(neighbour)]
+        neighbour.prev = current_node
+
+        heapq.heappush(q, (neighbour.cost, neighbour))
         visited.add(neighbour)
-        q.append(neighbour)
+
+      self.visited_map_.data[self.idx(current_node)] = 10
+      self.visited_map_pub_.publish(self.visited_map_)
 
     if goal_node not in visited:
       return None
@@ -132,6 +141,7 @@ class BFSPlanner(Node):
     path.poses = [self.grid_to_world(node) for node in path_nodes]
     return path
 
+
   def grid_to_world(self, node: GraphNode) -> PoseStamped:
     pose = PoseStamped()
     pose.header.frame_id = self.map_.header.frame_id
@@ -139,6 +149,7 @@ class BFSPlanner(Node):
     pose.pose.position.x = (node.x * self.map_.info.resolution) + self.map_.info.origin.position.x
     pose.pose.position.y = (node.y * self.map_.info.resolution) + self.map_.info.origin.position.y
     return pose
+    
 
   def world_to_grid(self, pose : Pose) -> GraphNode:
     grid_x = int((pose.position.x - self.map_.info.origin.position.x) / self.map_.info.resolution)
@@ -157,7 +168,7 @@ class BFSPlanner(Node):
 
 def main(args=None):
   rclpy.init(args=args)
-  node = BFSPlanner()
+  node = DijkstraPlanner()
   rclpy.spin(node)
   rclpy.shutdown()
 
