@@ -3,7 +3,7 @@ from launch import LaunchDescription
 from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
 
 
@@ -11,6 +11,7 @@ def generate_launch_description():
 
   use_sim_time = LaunchConfiguration("use_sim_time")
   slam_config = LaunchConfiguration("slam_config")
+  lifecycle_nodes = ["map_server"]
 
   ros_distro = os.environ["ROS_DISTRO"]
   lifecycle_nodes = ["map_saver_server"]
@@ -20,6 +21,11 @@ def generate_launch_description():
   use_sim_time_arg = DeclareLaunchArgument(
     "use_sim_time", 
     default_value="true"
+  )
+
+  map_name_arg = DeclareLaunchArgument(
+    "map_name",
+    default_value="small_warehouse"
   )
 
   slam_config_arg = DeclareLaunchArgument(
@@ -44,6 +50,7 @@ def generate_launch_description():
       {"occupied_thresh_default": 0.65},
     ],
   )
+
 
   slam_toolbox = Node(
     package="slam_toolbox",
