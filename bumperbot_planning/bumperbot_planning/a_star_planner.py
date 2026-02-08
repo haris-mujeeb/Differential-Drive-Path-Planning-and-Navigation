@@ -20,7 +20,7 @@ class AStarPlanner(Node):
     map_qos_.durability = DurabilityPolicy.TRANSIENT_LOCAL
     map_qos_.reliability = ReliabilityPolicy.RELIABLE
     
-    self.map_sub_ = self.create_subscription(OccupancyGrid, "/map", self.map_callback, map_qos_)
+    self.map_sub_ = self.create_subscription(OccupancyGrid, "/costmap", self.map_callback, map_qos_)
     self.goal_pose_sub_ = self.create_subscription(PoseStamped, "/goal_pose", self.goal_pose_callback, 10)
 
     self.path_pub_ = self.create_publisher(Path, "/a_star/path", 10)

@@ -20,7 +20,7 @@ class DijkstraPlanner(Node):
     map_qos_.durability = DurabilityPolicy.TRANSIENT_LOCAL
     map_qos_.reliability = ReliabilityPolicy.RELIABLE
     
-    self.map_sub_ = self.create_subscription(OccupancyGrid, "/map", self.map_callback, map_qos_)
+    self.map_sub_ = self.create_subscription(OccupancyGrid, "/costmap", self.map_callback, map_qos_)
     self.goal_pose_sub_ = self.create_subscription(PoseStamped, "/goal_pose", self.goal_pose_callback, 10)
 
     self.path_pub_ = self.create_publisher(Path, "/dijkstra/path", 10)
@@ -119,6 +119,7 @@ class DijkstraPlanner(Node):
         neighbour.prev = current_node
 
         heapq.heappush(q, (neighbour.cost, neighbour))
+
         visited.add(neighbour)
 
       self.visited_map_.data[self.idx(current_node)] = 10
