@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from typing import Optional, List
+from rclpy.duration import Duration
 import heapq
 import rclpy
 from rclpy.time import Time
@@ -13,6 +14,8 @@ from graph_node import GraphNode
 class AStarPlanner(Node):
   def __init__(self):
     super().__init__("a_star_node")
+    use_sim_time = self.get_parameter('use_sim_time').value
+    self.get_clock().use_sim_time = use_sim_time
     self.tf_buffer_ = Buffer()
     self.tf_listener_ = TransformListener(self.tf_buffer_, self)
 
@@ -46,7 +49,7 @@ class AStarPlanner(Node):
       return
     
     try:
-      map_to_base_tf = self.tf_buffer_.lookup_transform(self.map_.header.frame_id, "base_footprint", rclpy.time.Time())
+      map_to_base_tf = self.tf_buffer_.lookup_transform(self.map_.header.frame_id, "base_footprint", rclpy.time.Time(), timeout=Duration(seconds=1.0))
     except LookupException as e:
       self.get_logger().error(f"Could not transform from map to base_footprint: {e}")
       return

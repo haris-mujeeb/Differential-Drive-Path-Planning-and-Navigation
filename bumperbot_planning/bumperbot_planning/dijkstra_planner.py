@@ -74,7 +74,7 @@ class DijkstraPlanner(Node):
   def plan(self, start_pose : Pose, goal_pose : Pose) -> Optional[Path]:
     if self.map_ is None:
       self.get_logger().warning(
-          "No map found at /map to base_footprint"
+          "No map found."
       )
       return None
     
@@ -88,10 +88,10 @@ class DijkstraPlanner(Node):
         self.get_logger().warning("Goal node is out of bounds")
         return None
     if not self.is_free(start_node):
-        self.get_logger().warning("Start node is in an obstacle or unknown location")
+        self.get_logger().warning("Start node is an obstacle or unknown location")
         return None
     if not self.is_free(goal_node):
-        self.get_logger().warning("Goal node is in an obstacle or unknown location")
+        self.get_logger().warning("Goal node is an obstacle or unknown location")
         return None
 
     q : List[GraphNode]= []
@@ -123,7 +123,8 @@ class DijkstraPlanner(Node):
         visited.add(neighbour)
 
       self.visited_map_.data[self.idx(current_node)] = 10
-      self.visited_map_pub_.publish(self.visited_map_)
+      
+    self.visited_map_pub_.publish(self.visited_map_)
 
     if goal_node not in visited:
       return None
