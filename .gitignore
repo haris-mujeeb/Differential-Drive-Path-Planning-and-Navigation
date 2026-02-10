@@ -59,3 +59,7 @@ htmlcov/
 
 # Ignore secrets (example)
 .env
+
+# Clang
+.clang-format
+.cache/

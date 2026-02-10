@@ -20,7 +20,8 @@ def generate_launch_description():
 
   map_name_arg = DeclareLaunchArgument(
     "map_name",
-    default_value="small_warehouse"
+    default_value="dynamic_warehouse"
+    # default_value="dynamic_warehouse"
   )
 
   amcl_config_arg = DeclareLaunchArgument(

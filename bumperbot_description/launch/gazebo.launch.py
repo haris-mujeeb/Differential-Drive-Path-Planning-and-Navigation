@@ -21,7 +21,7 @@ def generate_launch_description():
     description='Absolute path to robot urdf file'
   )
 
-  world_name_arg = DeclareLaunchArgument(name="world_name", default_value="small_warehouse")
+  world_name_arg = DeclareLaunchArgument(name="world_name", default_value="dynamic_warehouse")
 
   world_path = PathJoinSubstitution([
     bumperbot_description_dir,
