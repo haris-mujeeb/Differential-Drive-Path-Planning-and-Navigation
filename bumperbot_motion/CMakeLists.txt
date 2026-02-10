@@ -14,6 +14,7 @@ find_package(tf2_ros REQUIRED)
 install(PROGRAMS
   ${PROJECT_NAME}/pd_motion_planner.py
   ${PROJECT_NAME}/pure_pursuit_motion_planner.py
+  ${PROJECT_NAME}/dwb_motion_planner.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
