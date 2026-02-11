@@ -15,7 +15,13 @@ install(PROGRAMS
   ${PROJECT_NAME}/pd_motion_planner.py
   ${PROJECT_NAME}/pure_pursuit_motion_planner.py
   ${PROJECT_NAME}/dwb_motion_planner.py
+  ${PROJECT_NAME}/collision_monitor.py
   DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
+    DIRECTORY launch
+    DESTINATION share/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

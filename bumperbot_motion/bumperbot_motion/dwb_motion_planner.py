@@ -19,15 +19,16 @@ class DWBMotionPlanner(Node):
 
         self.declare_parameter("max_linear_velocity", 0.5)
         self.declare_parameter("min_linear_velocity", 0.0)
-        self.declare_parameter("max_angular_velocity", 1.0)
-        self.declare_parameter("min_angular_velocity", -1.0)
+        self.declare_parameter("max_angular_velocity", 2.0)
+        self.declare_parameter("min_angular_velocity", -2.0)
         self.declare_parameter("linear_acceleration_limit", 1.0)
         self.declare_parameter("angular_acceleration_limit", 1.0)
 
         self.declare_parameter("predict_time", 2.0)
         self.declare_parameter("dt", 0.1)
+        self.declare_parameter("look_ahead_distance", 0.5)
 
-        self.declare_parameter("heading_cost_gain", 1.0)
+        self.declare_parameter("heading_cost_gain", 2.0)
         self.declare_parameter("distance_cost_gain", 2.0)
         self.declare_parameter("velocity_cost_gain", 1.0)
 
@@ -43,6 +44,7 @@ class DWBMotionPlanner(Node):
 
         self.predict_time = self.get_parameter("predict_time").value
         self.dt = self.get_parameter("dt").value
+        self.look_ahead_distance = self.get_parameter("look_ahead_distance").value
 
         self.heading_cost_gain = self.get_parameter("heading_cost_gain").value
         self.distance_cost_gain = self.get_parameter("distance_cost_gain").value
@@ -80,21 +82,38 @@ class DWBMotionPlanner(Node):
         robot_pose.pose.position.y = robot_pose_transform.transform.translation.y
         robot_pose.pose.orientation = robot_pose_transform.transform.rotation
 
-        goal_pose = self.global_path.poses[-1]
+        final_goal_pose = self.global_path.poses[-1]
 
-        dx = goal_pose.pose.position.x - robot_pose.pose.position.x
-        dy = goal_pose.pose.position.y - robot_pose.pose.position.y
-        distance_to_goal = math.sqrt(dx*dx + dy*dy)
+        dx = final_goal_pose.pose.position.x - robot_pose.pose.position.x
+        dy = final_goal_pose.pose.position.y - robot_pose.pose.position.y
+        distance_to_final_goal = math.sqrt(dx*dx + dy*dy)
 
-        if distance_to_goal < self.goal_tolerance:
+        if distance_to_final_goal < self.goal_tolerance:
             cmd = Twist()
             cmd.linear.x = 0.0
             cmd.angular.z = 0.0
             self.cmd_vel_pub.publish(cmd)
             self.get_logger().info("Goal reached!")
+            # Make sure we clear the path so we don't keep processing it
+            self.global_path = None
             return
+        
+        # Find the first path point that is at least look_ahead_distance away
+        local_target_pose = self.global_path.poses[-1] # Default to final goal
+        for pose_stamped in reversed(self.global_path.poses):
+            path_point = pose_stamped.pose.position
+            dist_x = path_point.x - robot_pose.pose.position.x
+            dist_y = path_point.y - robot_pose.pose.position.y
+            distance_from_robot = math.sqrt(dist_x**2 + dist_y**2)
 
-        u, best_trajectory = self.dwa_control(robot_pose, goal_pose)
+            if distance_from_robot > self.look_ahead_distance:
+                local_target_pose = pose_stamped
+            else:
+                break
+        
+        self.next_pose_pub.publish(local_target_pose)
+
+        u, best_trajectory = self.dwa_control(robot_pose, local_target_pose)
 
         cmd_vel_msg = Twist()
         cmd_vel_msg.linear.x = u[0]

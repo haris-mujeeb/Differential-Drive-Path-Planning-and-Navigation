@@ -8,10 +8,33 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
   use_slam = LaunchConfiguration("use_slam")
+  use_sim_time = LaunchConfiguration("use_sim_time")
 
   use_slam_arg = DeclareLaunchArgument(
     "use_slam",
     default_value="false"
+  )
+
+  declare_use_sim_time_arg = DeclareLaunchArgument(
+    'use_sim_time',
+    default_value='true',
+    description='Use simulation (Gazebo) clock if true'
+  )
+
+  a_star_planner_node = Node(
+        package='bumperbot_planning',
+        executable='a_star_planner_optimized.py',
+        name='a_star_node',
+        parameters=[{'use_sim_time': use_sim_time}],
+        output='screen'
+  )
+
+  dwb_motion_planner_node = Node(
+        package='bumperbot_motion',
+        executable='dwb_motion_planner.py',
+        name='dwb_motion_planner_node',
+        parameters=[{'use_sim_time': use_sim_time}],
+        output='screen'
   )
 
   gazebo = IncludeLaunchDescription(
@@ -72,13 +95,24 @@ def generate_launch_description():
     )
   )
 
+  motion = IncludeLaunchDescription(
+    os.path.join(
+      get_package_share_directory("bumperbot_motion"),
+      "launch",
+      "motion.launch.py"
+    )
+  )
+
   return LaunchDescription([
     use_slam_arg,
+    declare_use_sim_time_arg,
     gazebo,
+    rviz,
     controller,
     joystick,
     localization,
     slam,
-    rviz,
     navigation,
+    a_star_planner_node,
+    motion,
   ])

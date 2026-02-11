@@ -13,7 +13,7 @@ def generate_launch_description():
 
   use_python_arg = DeclareLaunchArgument(
     "use_python",
-    default_value="True",
+    default_value="False",
   )
   
   use_python = LaunchConfiguration("use_python")
@@ -51,7 +51,7 @@ def generate_launch_description():
     package="bumperbot_controller",
     executable="twist_relay.py",
     name="twist_relay", 
-    condition=UnlessCondition(use_python),
+    condition=IfCondition(use_python),
   )
 
   twist_relay_node = Node(
@@ -68,10 +68,11 @@ def generate_launch_description():
   )
 
   return LaunchDescription([
+    use_python_arg,
     joy_teleop,
     joy_node,
     joy_normalizer_node,
     twist_mux_launch,
     twist_relay_node_py,
-    # twist_relay_node,
+    twist_relay_node,
   ])

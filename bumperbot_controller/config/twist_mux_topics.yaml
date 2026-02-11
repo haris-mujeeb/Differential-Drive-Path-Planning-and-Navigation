@@ -14,3 +14,7 @@ twist_mux:
         topic   : cmd_vel
         timeout : 0.5
         priority: 80
+      collision_monitor: 
+        topic   : safe_cmd_vel
+        timeout : 0.5
+        priority: 95
