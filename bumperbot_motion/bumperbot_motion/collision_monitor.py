@@ -5,6 +5,7 @@ from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 import math
 from enum import Enum
+from bumperbot_msgs.msg import CollisionState
 from visualization_msgs.msg import Marker, MarkerArray # Added for marker visualization
 
 
@@ -54,6 +55,12 @@ class CollisionMonitor(Node):
             MarkerArray, 'zones', 10
         )
 
+        self.collision_state_pub = self.create_publisher(
+            CollisionState,
+            "/collision_monitor/state",
+            10
+        )
+
         # Prepare Zones for Visualization
         self.zones = MarkerArray()
         warning_zone = Marker()
@@ -99,7 +106,16 @@ class CollisionMonitor(Node):
         
         self.state = current_state # Update the actual state
 
-        self.get_logger().info(f"Current state: {self.state.name}")
+        collision_state_msg = CollisionState()
+        if self.state == State.FREE:
+            collision_state_msg.state = CollisionState.FREE
+        elif self.state == State.WARNING:
+            collision_state_msg.state = CollisionState.WARNING
+        elif self.state == State.DANGER:
+            collision_state_msg.state = CollisionState.DANGER
+        self.collision_state_pub.publish(collision_state_msg)
+
+        self.get_logger().debug(f"Current state: {self.state.name}")
 
         # Marker visualization logic
         if self.state != self.prev_state:

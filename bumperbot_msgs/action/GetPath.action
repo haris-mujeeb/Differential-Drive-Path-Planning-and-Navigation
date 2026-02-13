@@ -1,0 +1,8 @@
+#goal definition
+string planner
+geometry_msgs/PoseStamped goal_pose
+---
+#result definition
+nav_msgs/Path path
+---
+#feedback

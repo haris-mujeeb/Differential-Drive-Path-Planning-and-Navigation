@@ -21,21 +21,6 @@ def generate_launch_description():
     description='Use simulation (Gazebo) clock if true'
   )
 
-  a_star_planner_node = Node(
-        package='bumperbot_planning',
-        executable='a_star_planner_optimized.py',
-        name='a_star_node',
-        parameters=[{'use_sim_time': use_sim_time}],
-        output='screen'
-  )
-
-  dwb_motion_planner_node = Node(
-        package='bumperbot_motion',
-        executable='dwb_motion_planner.py',
-        name='dwb_motion_planner_node',
-        parameters=[{'use_sim_time': use_sim_time}],
-        output='screen'
-  )
 
   gazebo = IncludeLaunchDescription(
     os.path.join(
@@ -95,6 +80,14 @@ def generate_launch_description():
     )
   )
 
+  planning = IncludeLaunchDescription(
+    os.path.join(
+      get_package_share_directory("bumperbot_planning"),
+      "launch",
+      "planning.launch.py"
+    )
+  )
+
   motion = IncludeLaunchDescription(
     os.path.join(
       get_package_share_directory("bumperbot_motion"),
@@ -113,6 +106,8 @@ def generate_launch_description():
     localization,
     slam,
     navigation,
-    a_star_planner_node,
+    planning,
     motion,
   ])
+
+

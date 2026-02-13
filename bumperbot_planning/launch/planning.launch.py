@@ -13,24 +13,24 @@ def generate_launch_description():
         description='Use simulation (Gazebo) clock if true'
     )
 
-    collision_monitor_node = Node(
-        package='bumperbot_motion',
-        executable='collision_monitor.py',
-        name='collision_monitor_node',
+    global_planner_node = Node(
+        package='bumperbot_planning',
+        executable='global_planner.py',
+        name='global_planner',
         parameters=[{'use_sim_time': use_sim_time}],
         output='screen'
     )
 
-    dwb_motion_planner_node = Node(
-        package="bumperbot_motion",
-        executable="dwb_motion_planner.py",
-        name="dwb_motion_planner",
+    navigation_manager_node = Node(
+        package="bumperbot_planning",
+        executable="navigation_manager.py",
+        name="navigation_manager",
         parameters=[{'use_sim_time': use_sim_time}],
         output='screen'
     )
 
     return LaunchDescription([
         declare_use_sim_time_arg,
-        collision_monitor_node,
-        dwb_motion_planner_node,
+        global_planner_node,
+        navigation_manager_node,
     ])

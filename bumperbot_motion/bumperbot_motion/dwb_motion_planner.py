@@ -5,6 +5,7 @@ from rclpy.node import Node
 from nav_msgs.msg import Path, Odometry
 from geometry_msgs.msg import PoseStamped, Twist
 from tf2_ros import Buffer, TransformListener
+from bumperbot_msgs.msg import GoalReached
 
 
 class DWBMotionPlanner(Node):
@@ -59,6 +60,7 @@ class DWBMotionPlanner(Node):
 
         self.cmd_vel_pub = self.create_publisher(Twist, "/cmd_vel", 10)
         self.next_pose_pub = self.create_publisher(PoseStamped, "/motion_planner/next_pose", 10)
+        self.goal_reached_pub = self.create_publisher(GoalReached, "/motion_planner/goal_reached", 10)
 
     def path_callback(self, msg: Path):
         self.global_path = msg
@@ -94,8 +96,10 @@ class DWBMotionPlanner(Node):
             cmd.angular.z = 0.0
             self.cmd_vel_pub.publish(cmd)
             self.get_logger().info("Goal reached!")
-            # Make sure we clear the path so we don't keep processing it
-            self.global_path = None
+            goal_reached_msg = GoalReached()
+            goal_reached_msg.reached = True
+            self.goal_reached_pub.publish(goal_reached_msg)
+            self.global_path = None # Make sure we clear the path so we don't keep processing it
             return
         
         # Find the first path point that is at least look_ahead_distance away
