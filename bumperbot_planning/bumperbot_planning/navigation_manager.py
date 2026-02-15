@@ -2,6 +2,7 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
+from action_msgs.msg import GoalStatus
 from bumperbot_msgs.msg import CollisionState, GoalReached
 from bumperbot_msgs.action import GetPath
 from geometry_msgs.msg import PoseStamped
@@ -14,6 +15,7 @@ class NavigationManager(Node):
 
         self.waypoints = deque()
         self.current_goal = None
+        self.get_path_goal_handle = None
         
         self.get_path_client = ActionClient(self, GetPath, 'get_path')
         
@@ -31,6 +33,8 @@ class NavigationManager(Node):
 
     def next_goal_pose_callback(self, msg: PoseStamped):
         self.waypoints.append(msg)
+        if self.current_goal is None:
+            self.send_next_waypoint()
 
     def send_next_waypoint(self):
         if self.waypoints:
@@ -42,9 +46,15 @@ class NavigationManager(Node):
     def goal_reached_callback(self, msg: GoalReached):
         if msg.reached:
             self.get_logger().info("Waypoint reached.")
+            self.get_path_goal_handle = None
             self.send_next_waypoint()
 
     def send_get_path_goal(self, pose: PoseStamped):
+        
+        if self.get_path_goal_handle:
+            self.get_logger().info('Canceling previous GetPath goal.')
+            self.get_path_goal_handle.cancel_goal_async()
+
         goal_msg = GetPath.Goal()
         goal_msg.planner = 'a_star'
         goal_msg.goal_pose = pose
@@ -59,15 +69,29 @@ class NavigationManager(Node):
             self.get_logger().error('GetPath goal rejected')
             return
         
-        self.get_result_future = goal_handle.get_result_async()
-        self.get_result_future.add_done_callback(self.get_path_result_callback)
+        self.get_path_goal_handle = goal_handle
 
-    def get_path_result_callback(self, future):
+        self.get_result_future = goal_handle.get_result_async()
+        self.get_result_future.add_done_callback(
+            lambda f: self.get_path_result_callback(f, goal_handle))
+
+    def get_path_result_callback(self, future, goal_handle):
+        
+        status = future.result().status
         result = future.result().result
-        if result:
-            self.get_logger().info('Path received from global planner.')
-        else:
-            self.get_logger().error('GetPath action failed.')
+
+        if status == GoalStatus.STATUS_SUCCEEDED:
+            if result:
+                self.get_logger().info('Path received from global planner.')
+            else:
+                self.get_logger().error('GetPath action failed.')
+        elif status == GoalStatus.STATUS_CANCELED:
+            self.get_logger().warn('GetPath goal canceled.')
+        elif status == GoalStatus.STATUS_ABORTED:
+            self.get_logger().error('GetPath goal aborted.')
+        
+        if self.get_path_goal_handle and self.get_path_goal_handle.goal_id == goal_handle.goal_id:
+            self.get_path_goal_handle = None
 
     def collision_state_callback(self, msg: CollisionState):
         if self.current_goal and msg.state == CollisionState.WARNING:

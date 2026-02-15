@@ -8,6 +8,7 @@ Panels:
         - /TF1/Frames1
         - /Map1/Topic1
         - /ParticleCloud1/Topic1
+        - /Path1
         - /Robot Radius1
         - /Costmap1
       Splitter Ratio: 0.6294117569923401
@@ -209,7 +210,7 @@ Visualization Manager:
       Enabled: true
       Name: Safety Stop Marker
       Namespaces:
-        {}
+        "": true
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -294,7 +295,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /a_star/path
+        Value: /global_path
       Value: true
     - Alpha: 0.699999988079071
       Binary representation: false
@@ -420,7 +421,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 2.9200007915496826
+      Angle: 2.5199997425079346
       Class: rviz_default_plugins/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
@@ -430,11 +431,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: -59.21617126464844
+      Scale: -93.17780303955078
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz_default_plugins)
-      X: 2.740186929702759
-      Y: -4.346770286560059
+      X: 0.8367882966995239
+      Y: -0.37436115741729736
     Saved: ~
 Window Geometry:
   Displays:

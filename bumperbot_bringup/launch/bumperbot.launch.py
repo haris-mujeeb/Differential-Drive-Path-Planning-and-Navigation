@@ -106,8 +106,8 @@ def generate_launch_description():
     localization,
     slam,
     navigation,
-    planning,
-    motion,
+    # planning,
+    # motion,
   ])
 
 

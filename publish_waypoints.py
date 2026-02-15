@@ -104,7 +104,7 @@ class WaypointPublisherNode(Node):
                 # Publish the same goal for 5 seconds (reduced time for intermediate points)
                 pose.header.stamp = self.get_clock().now().to_msg()
                 self.publisher_.publish(pose)
-                time.sleep(10)
+                time.sleep(1)
 
             self.get_logger().info('Path completed.')
 

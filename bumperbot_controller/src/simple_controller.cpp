@@ -66,13 +66,17 @@ void SimpleController::jointCallback(const sensor_msgs::msg::JointState &state)
     // and then converts it in the global frame and publishes the TF
     double dp_left = state.position.at(0) - left_wheel_prev_pos_;
     double dp_right = state.position.at(1) - right_wheel_prev_pos_;
-    rclcpp::Time msg_time = state.header.stamp;
-    rclcpp::Duration dt = msg_time - prev_time_;
-
-    // Actualize the prev pose for the next itheration
-    left_wheel_prev_pos_ = state.position.at(0);
-    right_wheel_prev_pos_ = state.position.at(1);
-    prev_time_ = state.header.stamp;
+        rclcpp::Time msg_time = get_clock()->now();
+        rclcpp::Duration dt = msg_time - prev_time_;
+        
+        if (dt.seconds() <= 0.0) {
+            return;
+        }
+    
+        // Actualize the prev pose for the next itheration
+        left_wheel_prev_pos_ = state.position.at(0);
+        right_wheel_prev_pos_ = state.position.at(1);
+        prev_time_ = msg_time;
 
     // Calculate the rotational speed of each wheel
     double fi_left = dp_left / dt.seconds();

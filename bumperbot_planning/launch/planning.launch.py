@@ -1,7 +1,13 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
-from launch.actions import DeclareLaunchArgument
+
+####### REMOVE THIS AFTER TESTING
+import os
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from ament_index_python.packages import get_package_share_directory
+
+######
 
 def generate_launch_description():
     
@@ -29,8 +35,18 @@ def generate_launch_description():
         output='screen'
     )
 
+##### REMOVE THIS AFTER TESTING ####
+    motion = IncludeLaunchDescription(
+        os.path.join(
+        get_package_share_directory("bumperbot_motion"),
+        "launch",
+        "motion.launch.py"
+        )
+    )
+
     return LaunchDescription([
         declare_use_sim_time_arg,
         global_planner_node,
         navigation_manager_node,
+        motion # REMOVE THIS AFTER TESTING
     ])

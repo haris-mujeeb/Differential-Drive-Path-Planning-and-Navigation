@@ -54,7 +54,7 @@ class DWBMotionPlanner(Node):
         self.global_path: Path = None
         self.current_odom: Odometry = None
 
-        self.path_sub = self.create_subscription(Path, "/a_star/path", self.path_callback, 10)
+        self.path_sub = self.create_subscription(Path, "/global_path", self.path_callback, 10)
         self.odom_sub = self.create_subscription(Odometry, "/bumperbot_controller/odom", self.odom_callback, 10)
         self.control_timer = self.create_timer(self.dt, self.control_loop)
 
@@ -70,6 +70,16 @@ class DWBMotionPlanner(Node):
 
     def control_loop(self):
         if not self.global_path or not self.global_path.poses or not self.current_odom:
+            return
+
+        twist = self.current_odom.twist.twist
+        if (math.isnan(twist.linear.x) or math.isinf(twist.linear.x) or
+            math.isnan(twist.angular.z) or math.isinf(twist.angular.z)):
+            self.get_logger().warn("Invalid values in odometry twist. Skipping control loop and stopping the robot.")
+            cmd = Twist()
+            cmd.linear.x = 0.0
+            cmd.angular.z = 0.0
+            self.cmd_vel_pub.publish(cmd)
             return
 
         try:
