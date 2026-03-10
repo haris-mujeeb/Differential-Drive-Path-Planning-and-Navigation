@@ -2,7 +2,7 @@
 
 Welcome to my personal workspace for learning ROS 2! This repository is where I'm documenting my progress through the "Self-Driving and ROS 2 - Learn by Doing! Plan & Navigation" tutorial by AntoBrandi. My goal is to create a comprehensive guide for beginners, filled with personal notes, explanations, and troubleshooting tips that I discover along the way.
 
-<img width="242" height="304" alt="image" src="https://github.com/user-attachments/assets/f0cac622-c647-46f7-9ec5-e16c21bcf405" />
+https://github.com/user-attachments/assets/872c1fb1-597d-4698-af38-8acda5ad5d88
 
 ## A Beginner's Guide to this Workspace
 If you're new to ROS 2 and robotics, this workspace is designed to help you understand the foundational concepts of building and controlling a robot. We'll cover:
