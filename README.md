@@ -1,4 +1,4 @@
-# Bumperbot Workspace: My ROS 2 Learning Journey
+# ROS2 Path Planning and Navigation
 This repository is where I'm documenting my progress on Path Planning and Navigation using Nav2. 
 
 Following is my path planning alogrithm running on **Isaac Sim** + **ROS2** setup:
