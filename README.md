@@ -1,8 +1,12 @@
 # Bumperbot Workspace: My ROS 2 Learning Journey
+This repository is where I'm documenting my progress on Path Planning and Navigation using Nav2. 
 
-Welcome to my personal workspace for learning ROS 2! This repository is where I'm documenting my progress through the "Self-Driving and ROS 2 - Learn by Doing! Plan & Navigation" tutorial by AntoBrandi. My goal is to create a comprehensive guide for beginners, filled with personal notes, explanations, and troubleshooting tips that I discover along the way.
+Following is my path planning alogrithm running on **Isaac Sim** + **ROS2** setup:
 
 https://github.com/user-attachments/assets/872c1fb1-597d-4698-af38-8acda5ad5d88
+
+## Special Thanks:
+"Self-Driving and ROS 2 - Learn by Doing! Plan & Navigation" tutorials by [AntoBrandi](https://github.com/AntoBrandi)
 
 ## A Beginner's Guide to this Workspace
 If you're new to ROS 2 and robotics, this workspace is designed to help you understand the foundational concepts of building and controlling a robot. We'll cover:
@@ -15,9 +19,7 @@ If you're new to ROS 2 and robotics, this workspace is designed to help you unde
 This workspace is structured into several ROS 2 packages. Each package is a building block of our robot's software.
 
 ## Packages Overview
-
 Here's a breakdown of the packages in this workspace and what they do:
-
 -   **`bumperbot_msgs`**: Defines custom message and service types. This is the foundation for communication between our nodes.
 -   **`bumperbot_description`**: Contains the robot's 3D model (URDF) and the files needed to simulate it in Gazebo.
 -   **`bumperbot_controller`**: Implements the robot's controllers, including joystick teleoperation and inverse kinematics.
